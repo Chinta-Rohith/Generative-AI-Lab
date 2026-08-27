@@ -1,0 +1,114 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d807603c-3b53-4e89-bc88-cb606e82f3e4",
+      "name": "When chat message received",
+      "webhookId": "3c4ff5dd-c6ef-4469-8ab0-7f110c7a0cf0"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a personalized learning assistant.\n\nRemember the student's previous questions and learning preferences using conversation memory.\n\nAdapt your explanations based on their preferences, previous questions, and level of understanding.\n\nGive simple, clear, beginner-friendly explanations with examples when useful.\n\nIf the student asks a follow-up question, use the previous conversation context to provide a relevant answer."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "ba9238f8-3d42-442e-af9d-c2f9f14b6dbb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "a7df4e87-aff3-49d1-98a1-0d11b77e88e9",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "4a652012-6654-4a28-8684-99d83f2521ad",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "snzAkOpnOdgPdlnx",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "25f7fa05-9cd8-410b-a65f-9d4ddb2fa3e0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a23d8dc96e14d2602a32097fec1e4f99b8fa45adda8649115d8e570e592c3e95"
+  },
+  "nodeGroups": [],
+  "id": "luXx4L2izIvSvuq8",
+  "tags": []
+}

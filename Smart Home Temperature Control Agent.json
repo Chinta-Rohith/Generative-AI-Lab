@@ -1,0 +1,292 @@
+{
+  "name": "Smart Home Temperature Control Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "temperature-control",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e1c5e1dc-aa71-4c2a-adbf-75c07cef3914",
+      "name": "Temperature Input",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        192
+      ],
+      "webhookId": "cdca11f0-d24c-43a7-8e28-f371ebe07160"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.temperature }}",
+                    "rightValue": 26,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Too Hot"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.temperature }}",
+                    "rightValue": 22,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Too Cold"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Comfortable"
+        }
+      },
+      "id": "aab684a8-029c-4056-ba29-e23cd062a53a",
+      "name": "Evaluate Temperature",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "temp",
+              "name": "temperature",
+              "value": "={{ $json.body.temperature }}",
+              "type": "number"
+            },
+            {
+              "id": "decision",
+              "name": "decision",
+              "value": "Temperature above 26°C",
+              "type": "string"
+            },
+            {
+              "id": "action",
+              "name": "action",
+              "value": "AC turned ON",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b1cf67b0-d09c-42ec-b315-308ae45f645c",
+      "name": "AC On",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ temperature: $json.temperature, decision: $json.decision, action: $json.action }) }}",
+        "options": {}
+      },
+      "id": "e932b25f-899e-4ea3-847d-6412cb832e9b",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "temp",
+              "name": "temperature",
+              "value": "={{ $json.body.temperature }}",
+              "type": "number"
+            },
+            {
+              "id": "decision",
+              "name": "decision",
+              "value": "Temperature below 22°C",
+              "type": "string"
+            },
+            {
+              "id": "action",
+              "name": "action",
+              "value": "AC turned OFF",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "44ea81e2-cd07-4c2d-920e-2c277243f9a6",
+      "name": "AC Off",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "temp",
+              "name": "temperature",
+              "value": "={{ $json.body.temperature }}",
+              "type": "number"
+            },
+            {
+              "id": "decision",
+              "name": "decision",
+              "value": "Comfortable temperature",
+              "type": "string"
+            },
+            {
+              "id": "action",
+              "name": "action",
+              "value": "Keep current AC state",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "15de13ea-c5a2-49cc-9357-e57cfe1b8f6e",
+      "name": "Keep Current State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        384
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Temperature Input": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Temperature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Temperature": {
+      "main": [
+        [
+          {
+            "node": "AC On",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AC Off",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Keep Current State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AC On": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AC Off": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Current State": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "35b73404-ce34-45b8-ae19-1871d9a2d8c8",
+  "meta": {
+    "instanceId": "a23d8dc96e14d2602a32097fec1e4f99b8fa45adda8649115d8e570e592c3e95"
+  },
+  "nodeGroups": [],
+  "id": "iHhqbVyphllN4JBW",
+  "tags": []
+}
